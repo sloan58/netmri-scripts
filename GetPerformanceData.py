@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 from pprint import pprint
@@ -8,8 +9,13 @@ from infoblox_netmri import InfobloxNetMRI
 
 load_dotenv()
 
-chart_start_time = '2022-09-07'  # Begin time for chart data
-chart_end_time = '2022-09-08'    # Begin time for chart data
+# Begin time for chart data (default: today)
+start = datetime.datetime.today()
+chart_start_time = start.strftime("%Y-%m-%d")
+
+# End time for chart data (default: tomorrow)
+end = start + datetime.timedelta(days=1)
+chart_end_time = end.strftime("%Y-%m-%d")
 
 # Chart data to collect
 chart_names = [
