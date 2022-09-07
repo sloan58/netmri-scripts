@@ -1,15 +1,15 @@
+import os
 import sys
 from pprint import pprint
 
 import requests
+from dotenv import load_dotenv
 from infoblox_netmri import InfobloxNetMRI
+
+load_dotenv()
 
 chart_start_time = '2022-09-07'  # Begin time for chart data
 chart_end_time = '2022-09-08'    # Begin time for chart data
-
-host = ''      # NetMRI IP Address/FQDN
-username = ''  # NetMRI Username
-password = ''  # NetMRI Password
 
 # Chart data to collect
 chart_names = [
@@ -26,9 +26,9 @@ chart_names = [
 
 try:
     net_mri_client = InfobloxNetMRI(
-        host=host,
-        username=username,
-        password=password
+        host=os.getenv('NETMRI_HOST'),
+        username=os.getenv('NETMRI_USER'),
+        password=os.getenv('NETMRI_PASSWORD')
     )
 except requests.exceptions.ConnectionError as e:
     print('Could not connect to NetMRI')
