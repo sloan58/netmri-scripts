@@ -20,9 +20,10 @@ defaults = {
 
 
 with NetMRIEasy(**defaults) as easy:
-    
-    log = {
-        'message': '',
+
+    logger = easy.broker('Job')
+
+    log_meta = {
         'id': easy.batch_id,
         'jobdetailid': easy.job_id,
         'severity': 'INFO' 
@@ -42,8 +43,7 @@ with NetMRIEasy(**defaults) as easy:
         'Num Processed,Licensed'
     ]
 
-    log.update({'message': ','.join(str(val) for val in headers)})
-    easy.broker('Job').log_custom_message(**log)
+    logger.log_custom_message(**log_meta, message=','.join(str(val) for val in headers))
 
     for collector in collectors:
         if collector.DataSourceID not in ['0']:
@@ -59,5 +59,4 @@ with NetMRIEasy(**defaults) as easy:
                 details['NumProcessed'],
                 details['Licensed']
             ]
-            log.update({'message': ','.join(str(val) for val in output)})
-            easy.broker('Job').log_custom_message(**log)
+            logger.log_custom_message(**log_meta, message=','.join(str(val) for val in output))
