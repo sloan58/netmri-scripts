@@ -39,7 +39,6 @@ with NetMRIEasy(**defaults) as easy:
          add_network = vnet_broker.assign_members
          if 'virtual_network_members' in items:
              for item in items['virtual_network_members']:
-                 # if (item['VirtualNetworkMemberID']):
                  if 'VirtualNetworkMemberID' in item:
                     vnm_id.append(item['VirtualNetworkMemberID'])
                     clean_vnm_id = ",".join(vnm_id)
