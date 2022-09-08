@@ -37,13 +37,14 @@ vnm_id = []
 with NetMRIEasy(**defaults) as easy:
          vnet_broker = easy.broker('VirtualNetwork')
          add_network = vnet_broker.assign_members
-         for item in items['virtual_network_members']:
-             # if (item['VirtualNetworkMemberID']):
-             if 'VirtualNetworkMemberID' in item:
-                vnm_id.append(item['VirtualNetworkMemberID'])
-         clean_vnm_id = ",".join(vnm_id)
-         params = {
-             'VirtualNetworkID': 1,
-             'VirtualNetworkMemberID': clean_vnm_id
-         }
-         results = add_network(**params)
+         if 'virtual_network_members' in items:
+             for item in items['virtual_network_members']:
+                 # if (item['VirtualNetworkMemberID']):
+                 if 'VirtualNetworkMemberID' in item:
+                    vnm_id.append(item['VirtualNetworkMemberID'])
+                    clean_vnm_id = ",".join(vnm_id)
+                    params = {
+                        'VirtualNetworkID': 1,
+                        'VirtualNetworkMemberID': clean_vnm_id
+                    }
+                    results = add_network(**params)
