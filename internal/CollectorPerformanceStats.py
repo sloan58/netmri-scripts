@@ -24,6 +24,8 @@ oc_commands = [
     'show virtual'
 ]
 
+collectors = ["1", "2", "3,", "4", "5", "6"]
+
 with NetMRIEasy(**defaults) as easy:
 
     logger = easy.broker('Job')
@@ -46,3 +48,18 @@ with NetMRIEasy(**defaults) as easy:
             **log_meta,
             message=f'\n######## End {device_devicename}: {oc_command} ########\n'
         )
+
+        for collector in collectors:
+            metric = oc_command.split(' ')[1]
+            command = f'show collectors {collector} {metric}'
+            logger.log_custom_message(
+                **log_meta,
+                message=f'######## Begin {device_devicename} (Collector {collector}): {command} ########\n'
+            )
+            output = easy.send_command(command)
+            logger.log_custom_message(**log_meta, message=output)
+
+            logger.log_custom_message(
+                **log_meta,
+                message=f'\n######## End {device_devicename} (Collector {collector}): {command} ########\n'
+            )
