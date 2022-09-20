@@ -1,2 +1,4 @@
 .idea
 .env
+netmri-backup-api
+.DS_STORE
