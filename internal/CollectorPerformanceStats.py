@@ -24,7 +24,13 @@ oc_commands = [
     'show virtual'
 ]
 
-collectors = ["1", "2", "3,", "4", "5", "6"]
+collectors = ["1", "2", "3", "4", "5", "6"]
+
+collector_commands = [
+    f'show collectors {collector} {command.split(" ")[1]}' for collector in collectors for command in oc_commands
+]
+
+command_list = oc_commands + collector_commands
 
 with NetMRIEasy(**defaults) as easy:
 
@@ -36,30 +42,16 @@ with NetMRIEasy(**defaults) as easy:
         'severity': 'INFO'
     }
 
-    for oc_command in oc_commands:
+    for command in command_list:
         logger.log_custom_message(
             **log_meta,
-            message=f'######## Begin {device_devicename}: {oc_command} ########\n'
+            message=f'######## Begin {command} ########\n'
         )
-        output = easy.send_command(oc_command)
+        output = easy.send_command(command)
         logger.log_custom_message(**log_meta, message=output)
 
         logger.log_custom_message(
             **log_meta,
-            message=f'\n######## End {device_devicename}: {oc_command} ########\n'
+            message=f'\n######## End {command} ########\n'
         )
 
-        for collector in collectors:
-            metric = oc_command.split(' ')[1]
-            command = f'show collectors {collector} {metric}'
-            logger.log_custom_message(
-                **log_meta,
-                message=f'######## Begin {device_devicename} (Collector {collector}): {command} ########\n'
-            )
-            output = easy.send_command(command)
-            logger.log_custom_message(**log_meta, message=output)
-
-            logger.log_custom_message(
-                **log_meta,
-                message=f'\n######## End {device_devicename} (Collector {collector}): {command} ########\n'
-            )
