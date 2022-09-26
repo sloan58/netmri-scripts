@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -33,9 +34,12 @@ created_groups = []
 
 
 def fetch_new_parent_id(parent_group):
-    return group_broker_dst.search(**{
-        'GroupName': parent_group.GroupName
-    })[0].GroupID
+    try:
+        return group_broker_dst.search(**{
+            'GroupName': parent_group.GroupName
+        })[0].GroupID
+    except requests.exceptions.HTTPError as e:
+        print(e.response.text)
 
 
 def set_parent_group_id(group):
@@ -53,6 +57,15 @@ def prepare_group_params(group):
     return group_dict
 
 
+def create_group_on_dst(group_dict):
+    try:
+        group_broker_dst.create(**group_dict)
+        created_groups.append(group.GroupID)
+        print(f'Created group {group.GroupName} and appended to created_groups list.')
+    except requests.exceptions.HTTPError as e:
+        print(e.response.text)
+
+
 def create_group(group):
     print(
         f'Processing group {group.GroupName} with group id {group.GroupID}.  '
@@ -62,10 +75,7 @@ def create_group(group):
             or (group.ParentDeviceGroupID in created_groups and group.GroupID not in created_groups):
         print(f'Group {group.GroupName} is ready to be created.')
         group_dict = prepare_group_params(group)
-        group_broker_dst.create(**group_dict)
-        created_groups.append(group.GroupID)
-        print(f'Created group {group.GroupName} and appended to created_groups list.')
-
+        create_group_on_dst(group_dict)
     else:
         print(f'Group {group.GroupName} is NOT ready to be created.  Creating parent group first.')
         parent_group = list(filter(lambda pgroup: pgroup.GroupID == group.ParentDeviceGroupID, group_list))[0]
