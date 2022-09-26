@@ -60,8 +60,6 @@ def prepare_group_params(group):
 def create_group_on_dst(group_dict):
     try:
         group_broker_dst.create(**group_dict)
-        created_groups.append(group.GroupID)
-        print(f'Created group {group.GroupName} and appended to created_groups list.')
     except requests.exceptions.HTTPError as e:
         print(e.response.text)
 
@@ -76,6 +74,8 @@ def create_group(group):
         print(f'Group {group.GroupName} is ready to be created.')
         group_dict = prepare_group_params(group)
         create_group_on_dst(group_dict)
+        created_groups.append(group.GroupID)
+        print(f'Created group {group.GroupName} and appended to created_groups list.')
     else:
         print(f'Group {group.GroupName} is NOT ready to be created.  Creating parent group first.')
         parent_group = list(filter(lambda pgroup: pgroup.GroupID == group.ParentDeviceGroupID, group_list))[0]
