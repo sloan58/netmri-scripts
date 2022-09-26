@@ -21,7 +21,9 @@ except requests.exceptions.ConnectionError as e:
 
 group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
-group_broker.create(**{
+res = group_broker.create(**{
     'Criteria': '$Assurance < 20 and $Name eq "foobar2"',
-    'GroupName': 'TestFromApi'
+    'GroupName': 'TestFromApi5'
 })
+
+print(res.id)

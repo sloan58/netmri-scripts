@@ -22,7 +22,7 @@ except requests.exceptions.ConnectionError as e:
 group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
 group = group_broker.search(**{
-    'GroupName': 'TestFromApi'
+    'GroupName': 'TestFromApi5'
 })
 
 print(vars(group[0]))
