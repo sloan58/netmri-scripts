@@ -42,24 +42,39 @@ def fetch_new_parent_id(parent_group):
         print(e.response.text)
 
 
-def set_parent_group_id(group):
-    parent_group_id = group.ParentDeviceGroupID
-    if group.ParentDeviceGroupID != 0:
-        parent_group = list(filter(lambda pgroup: pgroup.GroupID == group.ParentDeviceGroupID, group_list))[0]
-        parent_group_id = fetch_new_parent_id(parent_group)
-    return parent_group_id
-
-
-def prepare_group_params(group):
-    group.ParentDeviceGroupID = set_parent_group_id(group)
-    group_dict = vars(group)
-    del group_dict['broker']
-    return group_dict
-
-
-def create_group_on_dst(group_dict):
+def create_group_on_dst(group_dict, parent_group_id):
     try:
-        group_broker_dst.create(**group_dict)
+        group_broker_dst.create(**{
+            'ARPCacheRefreshInd': group_dict['ARPCacheRefreshInd'],
+            'AdvancedGroupInd': group_dict['AdvancedGroupInd'],
+            'BlackoutDuration': group_dict['BlackoutDuration'],
+            'CCSCollection': group_dict['CCSCollection'],
+            'CLIPolling': group_dict['CLIPolling'],
+            'ConfigLocked': group_dict['ConfigLocked'],
+            'ConfigPolling': group_dict['ConfigPolling'],
+            'CredentialGroupID': group_dict['CredentialGroupID'],
+            'Criteria': group_dict['Criteria'],
+            'FingerPrint': group_dict['FingerPrint'],
+            'GroupName': group_dict['GroupName'],
+            'IncludeEndHostsInd': group_dict['IncludeEndHostsInd'],
+            'NetBIOSScanningInd': group_dict['NetBIOSScanningInd'],
+            'ParentDeviceGroupID': parent_group_id,
+            'PerfEnvPollingInd': group_dict['PerfEnvPollingInd'],
+            'PolFreqModifier': group_dict['PolFreqModifier'],
+            'PortControlBlackoutDuration': group_dict['PortControlBlackoutDuration'],
+            'PortScanning': group_dict['PortScanning'],
+            'PrivilegedPollingInd': group_dict['PrivilegedPollingInd'],
+            'Rank': group_dict['Rank'],
+            'SAMLicensedInd': group_dict['SAMLicensedInd'],
+            'SNMPAnalysis': group_dict['SNMPAnalysis'],
+            'SNMPPolling': group_dict['SNMPPolling'],
+            'SPMCollectionInd': group_dict['SPMCollectionInd'],
+            'StandardsCompliance': group_dict['StandardsCompliance'],
+            'StartBlackoutSchedule': group_dict['StartBlackoutSchedule'],
+            'StartPortControlBlackoutSchedule': group_dict['StartPortControlBlackoutSchedule'],
+            'UseGlobalPolFreq': group_dict['UseGlobalPolFreq'],
+            'VendorDefaultCollection': group_dict['VendorDefaultCollection'],
+        })
     except requests.exceptions.HTTPError as e:
         print(e.response.text)
 
@@ -72,8 +87,13 @@ def create_group(group):
     if group.ParentDeviceGroupID == 0 \
             or (group.ParentDeviceGroupID in created_groups and group.GroupID not in created_groups):
         print(f'Group {group.GroupName} is ready to be created.')
-        group_dict = prepare_group_params(group)
-        create_group_on_dst(group_dict)
+        parent_group_id = group.ParentDeviceGroupID
+        if group.ParentDeviceGroupID != 0:
+            parent_group = list(filter(lambda pgroup: pgroup.GroupID == group.ParentDeviceGroupID, group_list))[0]
+            parent_group_id = fetch_new_parent_id(parent_group)
+        group_dict = vars(group)
+        del group_dict['broker']
+        create_group_on_dst(group_dict, parent_group_id)
         created_groups.append(group.GroupID)
         print(f'Created group {group.GroupName} and appended to created_groups list.')
     else:
