@@ -1,5 +1,6 @@
 import os
 import sys
+from copy import copy
 
 import requests
 from dotenv import load_dotenv
@@ -29,59 +30,39 @@ group_broker_src = net_mri_client_src.get_broker('DeviceGroupDefn')
 group_broker_dst = net_mri_client_dst.get_broker('DeviceGroupDefn')
 
 
-def create_group_on_dst(group):
+def sanitize_params(new_group):
+    group_dict = copy(vars(new_group))
+    del group_dict['broker']
+    del group_dict['GroupID']
+    del group_dict['Children']
+    return group_dict
+
+
+def create_group_on_dst(new_group):
+    payload = sanitize_params(new_group)
     try:
-        res = group_broker_dst.create(**{
-            'ARPCacheRefreshInd': group.ARPCacheRefreshInd,
-            'AdvancedGroupInd': group.AdvancedGroupInd,
-            'BlackoutDuration': group.BlackoutDuration,
-            'CCSCollection': group.CCSCollection,
-            'CLIPolling': group.CLIPolling,
-            'ConfigLocked': group.ConfigLocked,
-            'ConfigPolling': group.ConfigPolling,
-            'CredentialGroupID': group.CredentialGroupID,
-            'Criteria': group.Criteria,
-            'FingerPrint': group.FingerPrint,
-            'GroupName': group.GroupName,
-            'IncludeEndHostsInd': group.IncludeEndHostsInd,
-            'NetBIOSScanningInd': group.NetBIOSScanningInd,
-            'ParentDeviceGroupID': group.ParentDeviceGroupID,
-            'PerfEnvPollingInd': group.PerfEnvPollingInd,
-            'PolFreqModifier': group.PolFreqModifier,
-            'PortControlBlackoutDuration': group.PortControlBlackoutDuration,
-            'PortScanning': group.PortScanning,
-            'PrivilegedPollingInd': group.PrivilegedPollingInd,
-            'Rank': group.Rank,
-            'SAMLicensedInd': group.SAMLicensedInd,
-            'SNMPAnalysis': group.SNMPAnalysis,
-            'SNMPPolling': group.SNMPPolling,
-            'SPMCollectionInd': group.SPMCollectionInd,
-            'StandardsCompliance': group.StandardsCompliance,
-            'StartBlackoutSchedule': group.StartBlackoutSchedule,
-            'StartPortControlBlackoutSchedule': group.StartPortControlBlackoutSchedule,
-            'UseGlobalPolFreq': group.UseGlobalPolFreq,
-            'VendorDefaultCollection': group.VendorDefaultCollection,
-        })
+        res = group_broker_dst.create(**payload)
         return res['id']
     except requests.exceptions.HTTPError as e:
         print(e.response.text)
+
+
+def process_group(group):
+    new_parent_id = create_group_on_dst(group)
+    if len(group.Children):
+        for child in group.Children:
+            child.ParentDeviceGroupID = new_parent_id
+            process_group(child)
 
 
 def get_children(group):
     children = list(filter(lambda cgroup: cgroup.ParentDeviceGroupID == group.GroupID, group_list))
     group.Children = children
     if len(children):
+        children.sort(key=lambda child: child.GroupName)
         for child in children:
             get_children(child)
     return group
-
-
-def create_new_group(group):
-    new_parent_id = create_group_on_dst(group)
-    if len(group.Children):
-        for child in group.Children:
-            child.ParentDeviceGroupID = new_parent_id
-            create_new_group(child)
 
 
 group_list = []
@@ -90,10 +71,6 @@ for group in group_broker_src.index():
         group_list.append(group)
 
 
-group_tree = []
 for group in group_list:
-    if not group.SystemGroupInd and group.ParentDeviceGroupID == 0:
-        group_tree.append(get_children(group))
-
-for group in group_tree:
-    create_new_group(group)
+    if group.ParentDeviceGroupID == 0:
+        process_group(get_children(group))
