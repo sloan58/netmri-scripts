@@ -1,6 +1,7 @@
 import os
 import sys
 from copy import copy
+from pprint import pprint
 
 import requests
 from dotenv import load_dotenv
@@ -95,12 +96,12 @@ def get_children(group):
 Main Application
 
 1. Collect Source and Destination NetMRI groups.
-2. Compare GroupNames to see if there are any groups on the source 
-   that already exist on the destination.
-3. If no groups from the source exist on the destination,
+2. Compare top-level GroupNames to see if there are any groups  
+   on the source that already exist on the destination.
+3. If no top-level groups from the source exist on the destination,
    create each group from the source on the destination while 
    maintaining proper parent/child relationships.
-   If groups from the source do exist on the destination,
+   If top-level groups from the source do exist on the destination,
    return a warning that lists those groups and exit the script.
    
 The primary functions are get_children and process_group.
@@ -117,7 +118,7 @@ for group in group_broker_src.index():
         group_list_src.append(group)
 
 print(f"Setting source NetMRI group names list")
-src_group_names = list(map(lambda sgroup: sgroup.GroupName, group_list_src))
+src_group_names = list(map(lambda sgroup: sgroup.GroupName, list(filter(lambda sgroup: sgroup.ParentDeviceGroupID == 0, group_list_src))))
 
 print(f"Populating destination NetMRI group list")
 group_list_dst = []
@@ -126,7 +127,7 @@ for group in group_broker_dst.index():
         group_list_dst.append(group)
 
 print(f"Setting destination NetMRI group names list")
-dst_group_names = list(map(lambda dgroup: dgroup.GroupName, group_list_dst))
+dst_group_names = list(map(lambda dgroup: dgroup.GroupName, list(filter(lambda dgroup: dgroup.ParentDeviceGroupID == 0, group_list_dst))))
 
 print(f"Checking if there are any matching groups between source and destination systems")
 matches = list(filter(lambda dgroup: dgroup in src_group_names, dst_group_names))
@@ -153,4 +154,4 @@ Exists on NetMRI Source and Destination:
 
 '''
     )
-    print(matches)
+    pprint(matches)
