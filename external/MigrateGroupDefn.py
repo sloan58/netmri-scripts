@@ -91,6 +91,25 @@ def get_children(group):
     return group
 
 
+'''
+Main Application
+
+1. Collect Source and Destination NetMRI groups.
+2. Compare GroupNames to see if there are any groups on the source 
+   that already exist on the destination.
+3. If no groups from the source exist on the destination,
+   create each group from the source on the destination while 
+   maintaining proper parent/child relationships.
+   If groups from the source do exist on the destination,
+   return a warning that lists those groups and exit the script.
+   
+The primary functions are get_children and process_group.
+Each are recursive functions that first build out the parent/child
+relationship tree and then process them top-down to create 
+new groups with relationships on the destination.
+
+'''
+
 print(f"Populating source NetMRI group list")
 group_list_src = []
 for group in group_broker_src.index():
@@ -125,9 +144,10 @@ else:
 #####################         WARNING          #######################
 ######################################################################
 
-The destination NetMRI host contains groups that exist on the source.
-This may cause mapping issues
+The source NetMRI host contains groups that exist on the destination.
+This will likely cause group mapping issues on the destination system.
 Please address these groups before running this script again.
+The source NetMRI system should not have any groups that exist on the destination.
 
 Exists on NetMRI Source and Destination:
 
