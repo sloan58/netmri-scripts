@@ -145,10 +145,10 @@ else:
 #####################         WARNING          #######################
 ######################################################################
 
-The source NetMRI host contains groups that exist on the destination.
+The source NetMRI host contains top-level groups that exist on the destination.
 This will likely cause group mapping issues on the destination system.
 Please address these groups before running this script again.
-The source NetMRI system should not have any groups that exist on the destination.
+The source NetMRI system should not have any top-level groups that exist on the destination.
 
 Exists on NetMRI Source and Destination:
 
