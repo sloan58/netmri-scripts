@@ -1,5 +1,6 @@
 import os
 import sys
+from pprint import pprint
 
 import requests
 from dotenv import load_dotenv
@@ -22,7 +23,7 @@ except requests.exceptions.ConnectionError as e:
 group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
 group = group_broker.search(**{
-    'GroupName': 'TestFromApi5'
+    'GroupName': 'BasicGroup'
 })
 
-print(vars(group[0]))
+pprint(vars(group[0]))

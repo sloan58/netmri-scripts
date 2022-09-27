@@ -31,10 +31,25 @@ group_broker_dst = net_mri_client_dst.get_broker('DeviceGroupDefn')
 
 
 def sanitize_params(new_group):
+    cast_to_str = [
+        'ARPCacheRefreshInd',
+        'AdvancedGroupInd',
+        # 'ConfigLocked',
+        'IncludeEndHostsInd',
+        'NetBIOSScanningInd',
+        'PerfEnvPollingInd',
+        'PrivilegedPollingInd',
+        'SAMLicensedInd',
+        'SPMCollectionInd',
+        'SystemGroupInd',
+        'UseGlobalPolFreq',
+    ]
     group_dict = copy(vars(new_group))
     del group_dict['broker']
     del group_dict['GroupID']
     del group_dict['Children']
+    for cast in cast_to_str:
+        group_dict[cast] = 'True' if group_dict[cast] else 'False'
     return group_dict
 
 

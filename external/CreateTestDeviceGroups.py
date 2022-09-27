@@ -24,19 +24,31 @@ group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
 source_group = group_broker.index()[0]
 
-parent_groups = ['Parent_Group_1', 'Parent Group 1', 'ParentGroup1']
-child_groups = ['Child_Group_1', 'Child Group 1', 'ChildGroup1']
+parent_groups = [
+    {
+        'name': 'Parent_Group_1',
+        'child': 'Child_Group_1'
+    },
+    {
+        'name': 'Parent Group 1',
+        'child': 'Child Group 1'
+    },
+    {
+        'name': 'ParentGroup1',
+        'child': 'ChildGroup1'
+    },
+]
 
 for parent in parent_groups:
     new_parent = copy(vars(source_group))
     del new_parent['broker']
     del new_parent['GroupID']
-    new_parent['GroupName'] = parent
+    new_parent['GroupName'] = parent['name']
     parent_id = group_broker.create(**new_parent)['id']
-    for child in child_groups:
-        new_child = copy(vars(source_group))
-        del new_child['broker']
-        del new_child['GroupID']
-        new_child['GroupName'] = child
-        new_child['ParentDeviceGroupID'] = parent_id
-        group_broker.create(**new_child)
+
+    new_child = copy(vars(source_group))
+    del new_child['broker']
+    del new_child['GroupID']
+    new_child['GroupName'] = parent['child']
+    new_child['ParentDeviceGroupID'] = parent_id
+    group_broker.create(**new_child)

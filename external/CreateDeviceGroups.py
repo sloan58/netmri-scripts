@@ -23,7 +23,6 @@ group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
 res = group_broker.create(**{
     'Criteria': '$Assurance < 20 and $Name eq "foobar2"',
-    'GroupName': 'TestFromApi5'
+    'GroupName': 'TestFromApi6',
+    'AdvancedGroupInd': "False"
 })
-
-print(res.id)
