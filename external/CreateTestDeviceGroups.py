@@ -22,19 +22,21 @@ except requests.exceptions.ConnectionError as e:
 
 group_broker = net_mri_client.get_broker('DeviceGroupDefn')
 
-source_group = group_broker.index()[0]
+source_group = group_broker.search(**{
+    'GroupName': 'BasicGroup'
+})[0]
 
 parent_groups = [
     {
-        'name': 'Parent_Group_1',
+        'name': 'API_LAN_GROUP',
         'child': 'Child_Group_1'
     },
     {
-        'name': 'Parent Group 1',
+        'name': 'API LAN GROUP',
         'child': 'Child Group 1'
     },
     {
-        'name': 'ParentGroup1',
+        'name': 'APILANGroup',
         'child': 'ChildGroup1'
     },
 ]
@@ -46,9 +48,9 @@ for parent in parent_groups:
     new_parent['GroupName'] = parent['name']
     parent_id = group_broker.create(**new_parent)['id']
 
-    new_child = copy(vars(source_group))
-    del new_child['broker']
-    del new_child['GroupID']
-    new_child['GroupName'] = parent['child']
-    new_child['ParentDeviceGroupID'] = parent_id
-    group_broker.create(**new_child)
+    # new_child = copy(vars(source_group))
+    # del new_child['broker']
+    # del new_child['GroupID']
+    # new_child['GroupName'] = parent['child']
+    # new_child['ParentDeviceGroupID'] = parent_id
+    # group_broker.create(**new_child)
