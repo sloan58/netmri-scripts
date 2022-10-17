@@ -75,7 +75,7 @@ with InfluxDBClient(url=f"http://{os.getenv('INFLUXDB_HOST')}:8086", token=token
             for data_point in data:
                 point = Point(chart_name)\
                     .tag(chart_name, os.getenv('NETMRI_HOST'))\
-                    .field(data_point['metric_name'], float(data_point['metric_value']))\
+                    .field(data_point['metric_name'], float(data_point['metric_value'] or 0))\
                     .time(data_point['timestamp'], WritePrecision.S)
                 write_api.write(bucket, org, point)
     client.close()
