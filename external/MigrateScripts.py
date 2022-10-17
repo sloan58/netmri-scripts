@@ -7,15 +7,15 @@ save_local_copy = False
 
 try:
     # Source NetMRI System
-    net_mri_client_src = InfobloxNetMRI(host="192.168.1.30",
-                                        username="admin",
-                                        password="A$h8urn!",
+    net_mri_client_src = InfobloxNetMRI(host="",
+                                        username="",
+                                        password="",
                                         use_ssl=False)
 
     # Destination NetMRI System
-    net_mri_client_dst = InfobloxNetMRI(host="192.168.1.30",
-                                        username="admin",
-                                        password="A$h8urn!",
+    net_mri_client_dst = InfobloxNetMRI(host="",
+                                        username="",
+                                        password="",
                                         use_ssl=False)
 except requests.exceptions.ConnectionError as e:
     print(e)
