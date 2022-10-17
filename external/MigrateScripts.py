@@ -77,25 +77,24 @@ except requests.exceptions.HTTPError as e:
     sys.exit()
 
 for script in response['scripts']:
-    if not script['created_by'] == 'admin':
-        print(f"({script['id']}) {script['name']}: Processing")
+    print(f"({script['id']}) {script['name']}: Processing")
 
-        script_content = get_script_export(script)
+    script_content = get_script_export(script)
 
-
+    try:
+        print(f"({script['id']}) {script['name']}: Attempting scripts/create on destination")
         try:
-            print(f"({script['id']}) {script['name']}: Attempting scripts/create on destination")
-            try:
-                response = net_mri_client_src.api_request('scripts/create', {
-                    'script_file': script_content,
-                    'language': script['language'],
-                })
-                print(f"({script['id']}) {script['name']}: Script added to destination")
-            except requests.exceptions.HTTPError as e:
-                print(f"({script['id']}) {script['name']}: Error adding script.")
-                print(e.response.text)
-                sys.exit()
-
-            print(f"({script['id']}) {script['name']}: Done")
+            response = net_mri_client_src.api_request('scripts/create', {
+                'script_file': script_content,
+                'language': script['language'],
+            })
+            print(f"({script['id']}) {script['name']}: Script added to destination")
         except requests.exceptions.HTTPError as e:
+            print(f"({script['id']}) {script['name']}: Error adding script.")
+            print(e.response.text)
             sys.exit()
+
+        print(f"({script['id']}) {script['name']}: Done")
+    except requests.exceptions.HTTPError as e:
+        sys.exit()
+
